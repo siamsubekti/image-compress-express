@@ -15,6 +15,7 @@ WORKDIR /usr/src/app
 
 COPY --from=builder /usr/src/app/package*.json ./
 COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/assets ./assets
 
 RUN npm install --omit=dev
 

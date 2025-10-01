@@ -3,9 +3,17 @@ services:
   app:
     build: .
     ports:
-      - '3000:3000'
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - "3000:3000"
     environment:
-      - NODE_ENV=development
+      - REDIS_URL=redis://redis:6379
+      - SIGNED_URL_SECRET=${SIGNED_URL_SECRET}
+      - PORT=${PORT}
+    depends_on:
+      - redis
+  redis:
+    image: "redis:alpine"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
