@@ -15,20 +15,21 @@ const parseAndValidateImageRequest = (req: Request) => {
   const height = h ? parseInt(h as string) : undefined;
   const quality = q ? parseInt(q as string) : undefined;
   const expiresStr = expires as string;
-  const signatureStr = signature as string;
+  // const signatureStr = signature as string;
 
-  if (!imageUrl || !expiresStr || !signatureStr) {
-    throw new Error('url, expires, and signature are required');
+  // if (!imageUrl || !expiresStr || !signatureStr) {
+  if (!imageUrl || !expiresStr) {
+    throw new Error('url, and expires are required');
   }
-  return { imageUrl, width, height, quality, expiresStr, signatureStr };
+  return { imageUrl, width, height, quality, expiresStr };
 };
 
 // Helper function to verify signature and expiration (placeholder)
-const verifySignature = (url: string, expires: string, signature: string) => {
-  // In a real application, you would verify the signature and expiration
-  // For this example, we'll return true.
-  return true;
-};
+// const verifySignature = (url: string, expires: string, signature: string) => {
+//   // In a real application, you would verify the signature and expiration
+//   // For this example, we'll return true.
+//   return true;
+// };
 
 // Helper function to generate cache key
 const generateCacheKey = (
@@ -40,26 +41,6 @@ const generateCacheKey = (
   return `image-cache-${url}-${width || 'auto'}-${height || 'auto'}-${
     quality || 'auto'
   }`;
-};
-
-// Helper function to get image path (placeholder for actual image fetching)
-const getImagePath = async (imageUrl: string) => {
-  // In a real application, this would involve fetching the image from the URL
-  // and saving it locally or streaming it. For this example, we'll use a dummy image.
-  const dummyImagePath = path.join(
-    __dirname,
-    '..',
-    '..',
-    'assets',
-    'dummy.jpg'
-  );
-  try {
-    await fs.access(dummyImagePath);
-    return dummyImagePath;
-  } catch (error) {
-    logger.error(`Dummy image not found at ${dummyImagePath}: ${error}`);
-    throw new Error('Image not found');
-  }
 };
 
 // Helper function to process image
@@ -105,11 +86,11 @@ const processImage = async (
 };
 
 // Helper function to send image
-const sendImage = (res: Response, buffer: Buffer, contentType: string, cacheKey: string) => {
+const sendImage = (res: Response, buffer: Buffer, contentType: string) => {
   res.setHeader('Content-Type', contentType);
   res.setHeader('Cache-Control', 'public, max-age=31536000');
   res.send(buffer);
-  setCache(cacheKey, { contentType: contentType, buffer: buffer }); // Cache the processed image
+  // setCache(cacheKey, { contentType: contentType, buffer: buffer }); // Cache the processed image
 };
 
 // New function to handle image processing logic
@@ -119,13 +100,13 @@ const handleImageProcessing = async (
   height?: number,
   quality?: number
 ) => {
-  const cacheKey = generateCacheKey(imageUrl, width, height, quality);
-  const cachedData = await getCache(cacheKey);
+  // const cacheKey = generateCacheKey(imageUrl, width, height, quality);
+  // const cachedData = await getCache(cacheKey);
 
-  if (cachedData) {
-    logger.info(`Serving from cache: ${cacheKey}`);
-    return { buffer: cachedData.buffer, contentType: cachedData.contentType || 'image/webp', cacheKey, fromCache: true };
-  }
+  // if (cachedData) {
+  //   logger.info(`Serving from cache: ${cacheKey}`);
+  //   return { buffer: cachedData.buffer, contentType: cachedData.contentType || 'image/webp', cacheKey, fromCache: true };
+  // }
 
   const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
   const imageBuffer = Buffer.from(response.data);
@@ -140,26 +121,26 @@ const handleImageProcessing = async (
   );
 
   logger.info(`Processed and serving image for: ${imageUrl}`);
-  return { buffer: processedBuffer, contentType: contentType, cacheKey, fromCache: false };
+  // return { buffer: processedBuffer, contentType: contentType, cacheKey, fromCache: false };
+  return { buffer: processedBuffer, contentType: contentType, fromCache: false };
 };
 
 export const compress = async (req: Request, res: Response) => {
   try {
-    const { imageUrl, width, height, quality, expiresStr, signatureStr } =
-      parseAndValidateImageRequest(req);
+    const { imageUrl, width, height, quality, expiresStr } = parseAndValidateImageRequest(req);
 
-    if (!verifySignature(imageUrl, expiresStr, signatureStr)) {
-      return res.status(403).json({ error: 'Invalid signature or expired URL' });
-    }
+    // if (!verifySignature(imageUrl, expiresStr, signatureStr)) {
+    //   return res.status(403).json({ error: 'Invalid signature or expired URL' });
+    // }
 
-    const { buffer, contentType, cacheKey } = await handleImageProcessing(
+    const { buffer, contentType } = await handleImageProcessing(
       imageUrl,
       width,
       height,
       quality
     );
 
-    sendImage(res, buffer, contentType, cacheKey);
+    sendImage(res, buffer, contentType);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     logger.error(`Error processing image: ${errorMessage}`);

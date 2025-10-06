@@ -5,15 +5,15 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - REDIS_URL=redis://redis:6379
-      - SIGNED_URL_SECRET=${SIGNED_URL_SECRET}
+      # - REDIS_URL=redis://redis:6379
+      # - SIGNED_URL_SECRET=${SIGNED_URL_SECRET}
       - PORT=${PORT}
-    depends_on:
-      - redis
-  redis:
-    image: "redis:alpine"
-    volumes:
-      - redis-data:/data
+    # depends_on:
+    #   - redis
+  # redis:
+  #   image: "redis:alpine"
+  #   volumes:
+  #     - redis-data:/data
 
 volumes:
   redis-data:
