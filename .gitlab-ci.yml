@@ -66,16 +66,6 @@ compile-preprod:
     - npm config set strict-ssl false
     - echo "PORT=8085" > .env
     - echo "BASE_PATH=/image-compress" >> .env
-  script:
-    - npm install
-    - npm run build
-  artifacts:
-    paths:
-      - dist/
-      - node_modules/
-      - package.json
-      - package-lock.json
-      - .env
 
 compile-production:
   before_script:

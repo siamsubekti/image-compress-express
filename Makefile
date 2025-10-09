@@ -3,8 +3,8 @@ unit-test-coverage:
 	npm run test
 
 build-preproduction:
-	npm install --legacy-peer-deps --save-exact
-	npm run build:preprod
+	npm install
+	npm run build
 
 build-production:
 	npm install --legacy-peer-deps --save-exact
