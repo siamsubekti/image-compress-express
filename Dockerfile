@@ -3,22 +3,54 @@ FROM node:20-alpine AS builder
 
 WORKDIR /usr/src/app
 
+# Add security dependencies
+RUN apk add --no-cache dumb-init
+
+# Install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm ci
+
+# Copy source code
 COPY . .
+
+# Build application
 RUN npm run build
 
-# Stage 2: Create the final image
+# Stage 2: Create the production image
 FROM node:20-alpine
 
+# Add necessary security updates and tools
+RUN apk add --no-cache dumb-init
+
+# Set working directory
 WORKDIR /usr/src/app
 
+# Copy only necessary files from builder
 COPY --from=builder /usr/src/app/package*.json ./
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/assets ./assets
+COPY --from=builder /usr/bin/dumb-init /usr/bin/dumb-init
 
-RUN npm install --omit=dev
+# Install production dependencies only
+RUN npm ci --only=production && \
+    # Add non-root user
+    adduser -D nodeuser && \
+    # Set correct permissions
+    chown -R nodeuser:nodeuser /usr/src/app
 
-EXPOSE 3000
+# Switch to non-root user
+USER nodeuser
 
+# Set environment variables
+ENV NODE_ENV=production \
+    PORT=8085 \
+    BASE_PATH=/image-compress
+
+# Expose correct port
+EXPOSE 8085
+
+# Use dumb-init as entrypoint
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
+# Start the application
 CMD ["npm", "start"]

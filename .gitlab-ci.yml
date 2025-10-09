@@ -1,0 +1,126 @@
+include:
+  - project: telkomsel.com/pipeline-template-assets/website-pipeline-template
+    ref: main
+    file: nodejs-stages.yml
+
+variables:
+  CI_SERVICE_NAME: 'wec-fe-image-compress'
+  DOCKER_IMAGE_TARFILE: "wec-fe-image-compress-tar.tar"
+  LINT_REPORT_FILE: "wec-fe-image-compress-${CI_COMMIT_SHA}-${CI_COMMIT_TIMESTAMP}"
+  PATH_PROJECT_NAME_AWS: "wec/${CI_SERVICE_NAME}"
+  TEST_COVERAGE_FILE: "coverage/lcov.info"
+  TASK_DEFINITION_REPOSITORY_DOMAIN: "https://cicd-gitlab-ee.telkomsel.co.id/api/v4/projects/19514/repository/files/"
+  DOCKERFILE_PATH: "Dockerfile"
+
+dependency-scan-report:
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_MERGE_REQUEST_ID
+  allow_failure: true
+
+secret-scan-report:
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_MERGE_REQUEST_ID
+  allow_failure: true
+
+hadolint:
+  allow_failure: true
+
+unit-tests:
+  before_script:
+    - echo "$NPM_TOKEN" > .npmrc
+    - npm config set strict-ssl false
+    - echo "Commit Hash $CI_COMMIT_SHA"
+    - echo "Commit Message $CI_COMMIT_MESSAGE"
+    - echo "Committed by $GITLAB_USER_NAME"
+    - cp ${ENV_PREPROD} ./src/environment/environment.ts
+  artifacts:
+    paths:
+      - coverage/omni
+    reports:
+      junit: coverage/omni/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/omni/cobertura-coverage.xml
+    expire_in: 1 day
+  allow_failure: true
+
+sonarqube:
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_MERGE_REQUEST_ID
+  tags:
+    - aws_ec2_app
+  allow_failure: true
+
+scan-image-verify:
+  dependencies: [buildx-preprod]
+  needs:
+    - buildx-preprod
+    - scan-image
+  variables:
+    TRIVY_OFFLINE_OPTS: "--scanners vuln"
+  allow_failure: true
+  tags:
+    - aws_ec2_app
+
+compile-preprod:
+  before_script:
+    - echo "$NPM_TOKEN" > .npmrc
+    - npm config set strict-ssl false
+    - echo "PORT=8085" > .env
+    - echo "BASE_PATH=/image-compress" >> .env
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+      - node_modules/
+      - package.json
+      - package-lock.json
+      - .env
+
+compile-production:
+  before_script:
+    - echo "$NPM_TOKEN" > .npmrc
+    - npm config set strict-ssl false
+    - echo "PORT=8085" > .env
+    - echo "BASE_PATH=/image-compress" >> .env
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+      - node_modules/
+      - package.json
+      - package-lock.json
+      - .env
+
+ecs-preprod:
+  variables:
+    ENVIRONMENT: preprod
+    SERVICE_NAME: service-wec-fe-image-compress
+    REPOSITORY_URL: ${NON_PROD_ECR_AWS_ACCOUNT}.dkr.ecr.ap-southeast-3.amazonaws.com/${PATH_PROJECT_NAME_AWS}
+    AWS_PROFILE: env-preprod
+    AWS_REPOSITORY_PROFILE_URL : "${AWS_REPOSITORY_PROFILE_DOMAIN}env-preprod/raw?ref=main"
+    CLUSTER_NAME: preprod-wec-ecs-cluster
+    TASK_DEFINITION_NAME: wec-fe-image-compress
+    TASK_DEFINITION_PATH: Preprod
+    TASK_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}Preprod%2Fwec-fe-image-compress-task-definition.json/raw?ref=main"
+    SERVICE_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}Preprod%2Fwec-fe-image-compress-service-definition.json/raw?ref=main"
+
+ecs-production:
+  variables:
+    ENVIRONMENT: prod
+    SERVICE_NAME: service-wec-fe-image-compress
+    REPOSITORY_URL: ${PROD_ECR_AWS_ACCOUNT}.dkr.ecr.ap-southeast-3.amazonaws.com/${PATH_PROJECT_NAME_AWS}
+    AWS_PROFILE: env-prod
+    AWS_REPOSITORY_PROFILE_URL : "${AWS_REPOSITORY_PROFILE_DOMAIN}env-prod/raw?ref=main"
+    CLUSTER_NAME: prod-wec-ecs-cluster
+    TASK_DEFINITION_NAME: wec-fe-image-compress
+    TASK_DEFINITION_PATH: Production
+    TASK_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}Production%2Fwec-fe-image-compress-task-definition.json/raw?ref=main"
+    SERVICE_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}Production%2Fwec-fe-image-compress-service-definition.json/raw?ref=main"
