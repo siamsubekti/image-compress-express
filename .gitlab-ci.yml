@@ -29,11 +29,7 @@ hadolint:
 
 unit-tests:
   before_script:
-    - echo "$NPM_TOKEN" > .npmrc
     - npm config set strict-ssl false
-    - echo "Commit Hash $CI_COMMIT_SHA"
-    - echo "Commit Message $CI_COMMIT_MESSAGE"
-    - echo "Committed by $GITLAB_USER_NAME"
     - cp ${ENV_PREPROD} ./src/environment/environment.ts
   artifacts:
     paths:
@@ -67,12 +63,11 @@ scan-image-verify:
 
 compile-preprod:
   before_script:
-    - echo "$NPM_TOKEN" > .npmrc
     - npm config set strict-ssl false
     - echo "PORT=8085" > .env
     - echo "BASE_PATH=/image-compress" >> .env
   script:
-    - npm ci
+    - npm install
     - npm run build
   artifacts:
     paths:
@@ -84,12 +79,11 @@ compile-preprod:
 
 compile-production:
   before_script:
-    - echo "$NPM_TOKEN" > .npmrc
     - npm config set strict-ssl false
     - echo "PORT=8085" > .env
     - echo "BASE_PATH=/image-compress" >> .env
   script:
-    - npm ci
+    - npm install
     - npm run build
   artifacts:
     paths:

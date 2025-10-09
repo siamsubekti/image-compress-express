@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:20-alpine AS builder
+FROM new.cicd-jfrog.telkomsel.co.id/docker/node:20.17.0-alpine-arm AS builder
 
 WORKDIR /usr/src/app
 
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Create the production image
-FROM node:20-alpine
+FROM new.cicd-jfrog.telkomsel.co.id/docker/node:20.17.0-alpine-arm
 
 # Add necessary security updates and tools
 RUN apk add --no-cache dumb-init
