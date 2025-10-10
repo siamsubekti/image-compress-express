@@ -31,16 +31,6 @@ COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/assets ./assets
 COPY --from=builder /usr/bin/dumb-init /usr/bin/dumb-init
 
-# Install production dependencies only
-RUN npm ci --only=production && \
-    # Add non-root user
-    adduser -D nodeuser && \
-    # Set correct permissions
-    chown -R nodeuser:nodeuser /usr/src/app
-
-# Switch to non-root user
-USER nodeuser
-
 # Set environment variables
 ENV NODE_ENV=production \
     PORT=8085 \
