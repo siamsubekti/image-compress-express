@@ -93,8 +93,8 @@ ecs-preprod:
     CLUSTER_NAME: preprod-wec-ecs-cluster
     TASK_DEFINITION_NAME: wec-fe-image-compress
     TASK_DEFINITION_PATH: Preprod
-    TASK_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}Preprod%2Fwec-fe-image-compress-task-definition.json/raw?ref=main"
-    SERVICE_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}Preprod%2Fwec-fe-image-compress-service-definition.json/raw?ref=main"
+    TASK_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}preprod%2Fwec-fe-image-compress-task-definition.json/raw?ref=main"
+    SERVICE_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}preprod%2Fwec-fe-image-compress-service-definition.json/raw?ref=main"
 
 ecs-production:
   variables:
@@ -106,5 +106,5 @@ ecs-production:
     CLUSTER_NAME: prod-wec-ecs-cluster
     TASK_DEFINITION_NAME: wec-fe-image-compress
     TASK_DEFINITION_PATH: Production
-    TASK_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}Production%2Fwec-fe-image-compress-task-definition.json/raw?ref=main"
-    SERVICE_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}Production%2Fwec-fe-image-compress-service-definition.json/raw?ref=main"
+    TASK_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}production%2Fwec-fe-image-compress-task-definition.json/raw?ref=main"
+    SERVICE_DEFINITION_REPOSITORY_URL: "${TASK_DEFINITION_REPOSITORY_DOMAIN}production%2Fwec-fe-image-compress-service-definition.json/raw?ref=main"
