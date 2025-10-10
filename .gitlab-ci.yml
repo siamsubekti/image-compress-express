@@ -9,7 +9,7 @@ variables:
   LINT_REPORT_FILE: "wec-fe-image-compress-${CI_COMMIT_SHA}-${CI_COMMIT_TIMESTAMP}"
   PATH_PROJECT_NAME_AWS: "wec/${CI_SERVICE_NAME}"
   TEST_COVERAGE_FILE: "coverage/lcov.info"
-  TASK_DEFINITION_REPOSITORY_DOMAIN: "https://cicd-gitlab-ee.telkomsel.co.id/api/v4/projects/19514/repository/files/"
+  TASK_DEFINITION_REPOSITORY_DOMAIN: "https://cicd-gitlab-ee.telkomsel.co.id/api/v4/projects/22929/repository/files/"
   DOCKERFILE_PATH: "Dockerfile"
 
 dependency-scan-report:
