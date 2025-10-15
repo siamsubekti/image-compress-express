@@ -3,17 +3,16 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - "8085:8085"
     environment:
-      # - REDIS_URL=redis://redis:6379
-      # - SIGNED_URL_SECRET=${SIGNED_URL_SECRET}
-      - PORT=${PORT}
-    # depends_on:
-    #   - redis
-  # redis:
-  #   image: "redis:alpine"
-  #   volumes:
-  #     - redis-data:/data
+      - REDIS_URL=redis://redis:6379
+      - PORT=8085
+    depends_on:
+      - redis
+  redis:
+    image: "redis:alpine"
+    volumes:
+      - redis-data:/data
 
 volumes:
   redis-data:
